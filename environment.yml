@@ -1,4 +1,4 @@
-name: wsb-agent
+name: rag-chatbot
 channels:
   - conda-forge
 dependencies:
@@ -7,3 +7,5 @@ dependencies:
   - pip:
       - langchain==0.3.25
       - langchain-community==0.3.24
+      - sentence-transformers==4.1.0
+      - faiss-cpu==1.11.0
