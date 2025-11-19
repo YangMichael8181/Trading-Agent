@@ -10,7 +10,7 @@ def main():
     # Gathers top 50 posts, finds stickied thread, gathers comments
     # Returns a dict: {post_title : [comments]}
     wsb_hot_url = "https://www.reddit.com/r/wallstreetbets/hot.json?limit=50"
-    scraped_data = wsb_scrape.get_wsb_thread(wsb_hot_url)
+    scraped_data = scraper.get_wsb_thread(wsb_hot_url)
 
     for title, comments in scraped_data.items():
         cleaned_title = title.replace('/', '-').replace('\\', '-')
