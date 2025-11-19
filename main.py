@@ -11,7 +11,7 @@ def main():
     wsb_hot_url = "https://www.reddit.com/r/wallstreetbets/hot.json?limit=50"
     comments = wsb_scrape.get_wsb_thread(wsb_hot_url)
     for comment in comments:
-        print(comment)
+        print(f"Author: {comment.author}\n Body: {comment.body} \n Link: {comment.permalink} \n Score: {comment.score}")
     
     return
 

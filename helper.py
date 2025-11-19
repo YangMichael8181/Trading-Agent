@@ -28,16 +28,16 @@ def make_request(url:str, thread:bool = False):
             if response.status_code == 200:
                 data = response.json()
                 request_status = True
-
+                # If thread mode:
+                # Gather all comments
                 if thread == True:
                     res = [post['data'] for post in data[1]['data']['children'] if post['kind'] == 't1']
 
+                # Not thread mode:
+                # Gather stickied posts
                 else:
                     posts = data['data']['children']
-                    for post in posts:
-                        print(post)
-                        input('pause')
-                    res = [post['data'] for post in posts if post['stickied'] == True and post['kind'] == 't3']
+                    res = [f"https://www.reddit.com{post['data']['permalink']}"[:-1] + ".json" for post in posts if post['data']['stickied'] == True]
 
             elif response.status_code == 429:
                 print("Error: Too many requests. Reddit is rate-limiting you.")

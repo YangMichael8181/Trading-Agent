@@ -8,13 +8,13 @@ class Comment:
     author = ""
     text = ""
     link = ""
-    karma = 0
+    score = 0
 
-    def __init__(_author, _text, _link, _karma):
-        author = _author
-        text = _text
-        link = _link
-        karma = _karma
+    def __init__(self, _author, _body, _permalink, _score):
+        self.author = _author
+        self.body = _body
+        self.permalink = _permalink
+        self.score = _score
 
 # Finds stickied post in hot page of wsb
 # Gathers comments from stickied post
@@ -25,7 +25,8 @@ def get_wsb_thread(hot_url):
 
     for url in urls:
         for post in make_request(url, thread=True):
-            res.append(Comment(post['author'], post['body'], post['permalink'], post['karma']))
+            fixed_link = f"https://www.reddit.com{post['permalink']}"
+            res.append(Comment(post['author'], post['body'], post['permalink'], post['score']))
     
     return res
 
