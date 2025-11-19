@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# NOTE: Can't use pipefail, causes shell to break when sourcing script
+
+# activate virtual environment
+conda activate wsb-agent
+
+# check to see that virtual environment has been activated
+# Should point to the python within the conda directory
+which python

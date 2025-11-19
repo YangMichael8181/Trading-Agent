@@ -1,0 +1,9 @@
+name: wsb-agent
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - langchain==0.3.25
+      - langchain-community==0.3.24
