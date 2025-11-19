@@ -31,13 +31,14 @@ def make_request(url:str, thread:bool = False):
                 # If thread mode:
                 # Gather all comments
                 if thread == True:
-                    res = [post['data'] for post in data[1]['data']['children'] if post['kind'] == 't1']
+                    post_title = data[0]['data']['children'][0]['data']['title']
+                    return (post_title, [post['data'] for post in data[1]['data']['children'] if post['kind'] == 't1'])
 
                 # Not thread mode:
                 # Gather stickied posts
                 else:
                     posts = data['data']['children']
-                    res = [f"https://www.reddit.com{post['data']['permalink']}"[:-1] + ".json" for post in posts if post['data']['stickied'] == True]
+                    return [f"https://www.reddit.com{post['data']['permalink']}"[:-1] + ".json" for post in posts if post['data']['stickied'] == True]
 
             elif response.status_code == 429:
                 print("Error: Too many requests. Reddit is rate-limiting you.")
@@ -53,4 +54,5 @@ def make_request(url:str, thread:bool = False):
         if attempts == 5:
             print('Too many attempts, try again another time . . .')
     
-    return res
+    print("Error occured: Please try again")
+    return None

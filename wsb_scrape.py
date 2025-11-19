@@ -1,6 +1,6 @@
 import json
+from collections import defaultdict
 from helper import make_request
-# from langchain.llms import Ollama
 
 
 class Comment:
@@ -10,23 +10,39 @@ class Comment:
     link = ""
     score = 0
 
-    def __init__(self, _author, _body, _permalink, _score):
+    def __init__(self, _author, _body, _link, _score):
         self.author = _author
         self.body = _body
-        self.permalink = _permalink
+        self.link = _link
         self.score = _score
 
 # Finds stickied post in hot page of wsb
 # Gathers comments from stickied post
 # Returns list of comment objects 
 def get_wsb_thread(hot_url):
-    res = []
+    res = defaultdict(list)
     urls = make_request(hot_url)
 
     for url in urls:
-        for post in make_request(url, thread=True):
-            fixed_link = f"https://www.reddit.com{post['permalink']}"
-            res.append(Comment(post['author'], post['body'], post['permalink'], post['score']))
+        post_title, comments = make_request(url, thread=True)
+        for comment in comments:
+            # Ignore comments with images
+            # No image == missing crucial context, with image == program becomes far more complicated
+            # Not a statistically significant number of comments with pictures, therefore ignored
+            comment_body = comment['body']
+            if ".jpg" in comment_body or ".jpeg" in comment_body or ".png" in comment_body:
+                continue
+
+            # Ignore comments with less than 1 karma
+            # Again, more harm than good. Other people have determined this poster to be trolling/irrelevant, therefore remove
+            comment_score = comment['score']
+            if comment_score < 1:
+                continue
+
+            comment_author = comment['author']
+            comment_link = f"https://www.reddit.com{comment['permalink']}"
+            res[post_title].append(Comment(comment_author, comment_body, comment_link, comment_score))
+
     
     return res
 
