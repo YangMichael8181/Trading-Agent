@@ -1,5 +1,5 @@
 import os
-import wsb_scrape
+import scraper
 import globals
 
 
