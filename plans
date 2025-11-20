@@ -1,6 +1,0 @@
-Prompts:
-    Create prompts, store prompts in directory
-    Retrieve prompts for each LLM at runtime
-
-Docs:
-    Use for vector database
