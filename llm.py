@@ -12,15 +12,15 @@ client = OpenAI(api_key="ollama",base_url="http://localhost:11434/v1")
 def parse_tickers(comments:list, comments_dict = None):
     res = defaultdict(list)
 
-    with open(globals.prompts_dir / "ticker_parser_prompt", "r") as file:
+    with open(globals.prompts_dir / "ticker_parser_prompt.prompt", "r") as file:
         SYSTEM_PROMPT = file.read()
     
     temperature = 0.1
-    # model = "gemma3:12b"
+    model = "gemma3:12b"
     messages = [{"role": "system", "content": SYSTEM_PROMPT}] + [{"role": "user", "content": comment} for comment in comments]
 
     response = client.chat.completions.create(
-        model=globals.model,
+        model=model,
         messages=messages,
         temperature=temperature
     )

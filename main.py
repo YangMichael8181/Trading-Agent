@@ -25,10 +25,6 @@ def main():
     # Returns a dict {post_title : [comments]}
     # Parse comments, send to LLM to gather tickers
 
-    with open("visited_links", "w") as file:
-        for url in globals.visited_urls:
-            file.write(url + "\n")
-
     for title, comments in scraped_data.items():
         comments_dict = defaultdict(list)
 
@@ -47,6 +43,10 @@ def main():
         
         print(f"Finished parsing {cleaned_title}")
     
+    with open("visited_links", "w") as file:
+        for url in globals.visited_urls:
+            file.write(url + "\n")
+
     # print('Gathering Daily DDs')
     # get_daily_dds(headers)
 
