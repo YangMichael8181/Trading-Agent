@@ -1,15 +1,18 @@
-Gathered some possible LLM to run locally
-Some are faster, less powerful, while others are pure power, no speed
+Llama 3.1 8b (30 seconds):
+Decent at filtering, some errors
+Accuracy is around ~90%
+Pretty fast (~30 seconds)
 
-Faster models:
-  qwen3:8b-q8_0 (qwen3 8 billion parameters, quantized to 8 bit)
-  llama3.1:8b(llama 3.1 8 billion parameters)
+Mistral-Nemo:
+Not good at filtering, a lot of time (~150 seconds)
 
-Pure Power models:
-  qwen3:14b (qwen3 14 billion parameters)
-  mistral-nemo
+Gemma 3 12b:
+Better than Llama at filtering (more correct output, less error-prone)
+A little slower, not by much (90 seconds)
 
+Deepseek R1 8b:
+Most accurate output (no errors)
+However, By FAR the longest (600 seconds)
 
-For more ideas: ask Gemini
-
-Interesting: finBERT
+Qwen3 8b:
+Around as accurate as gemma3, but far slower (~240 seconds)

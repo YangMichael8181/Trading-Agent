@@ -1,30 +1,54 @@
-import os
+import json
+from collections import defaultdict
+
+# local imports
 import scraper
 import globals
-
+import llm
 
 def main():
 
+    # grab visited threads to prevent re-visiting same threads
+    with open("visited_links", "r") as file:
+        links = file.read().split("\n")
+        globals.visited_urls = set(links)
+
+
     print('Starting Stickied Thread Scrape . . . ')
-    # URL for hot page of /r/wallstreetbets
-    # Gathers top 50 posts, finds stickied thread, gathers comments
-    # Returns a dict: {post_title : [comments]}
-    wsb_hot_url = "https://www.reddit.com/r/wallstreetbets/hot.json?limit=50"
-    scraped_data = scraper.get_wsb_thread(wsb_hot_url)
+    # grabs threads from /u/wsbapp
+    # Grabs top 20 threads, ignores latest thread
+    # Do this via checking the history of wsbapp
+    wsbapp_url = "https://www.reddit.com/user/wsbapp.json"
+    scraped_data = scraper.get_wsb_thread(wsbapp_url)
+        
+
+    # Returns a dict {post_title : [comments]}
+    # Parse comments, send to LLM to gather tickers
+
+    with open("visited_links", "w") as file:
+        for url in globals.visited_urls:
+            file.write(url + "\n")
 
     for title, comments in scraped_data.items():
-        cleaned_title = title.replace('/', '-').replace('\\', '-')
+        comments_dict = defaultdict(list)
+
+        for i in range(0, len(comments), 5):
+            print(f"Parsing comments {i} through {i + 5}. . .")
+            comment_text = [comment for comment in comments[i: i + 5]]
+            llm.parse_tickers(comment_text, comments_dict)
+
+        # Sanitize thread title
+        # Place within docs directory
+        cleaned_title = title.replace('/', '-').replace('\\', '-') + ".json"
         cleaned_title = globals.docs_dir / cleaned_title
+
         with open(cleaned_title, "w") as file:
-            for comment in comments:
-                comment_str = f"Author: {comment.author}\n Body: {comment.body} \n Link: {comment.link} \n Score: {comment.score} \n"
-                file.write(comment_str + "---------------------------------------------------------------------------------------------------------\n")
+            json.dump(comments_dict, file, indent=4)
+        
+        print(f"Finished parsing {cleaned_title}")
     
-    return
-
-    print('Gathering Daily DDs')
-    get_daily_dds(headers)
-
+    # print('Gathering Daily DDs')
+    # get_daily_dds(headers)
 
 
 
