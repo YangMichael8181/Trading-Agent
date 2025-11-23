@@ -1,14 +1,31 @@
 import json
 from collections import defaultdict
+
 from helper import make_request
 from classes import Comment
 import globals
+import llm
 
 # Finds stickied post in hot page of wsb
 # Gathers comments from stickied post
 # Returns list of comment objects 
-def get_wsb_thread(wsbapp_url):
-    res = defaultdict(list)
+def get_wsb_thread():
+    """
+    Gathers comments from the daily thread
+    Parameters:
+        wsbapp_url: string. The url to /u/wsbapp's page
+    """
+
+    print('Starting Stickied Thread Scrape . . . ')
+    
+    # grab visited threads to prevent re-visiting same threads
+    with open("visited_links.txt", "r") as file:
+        links = file.read().split("\n")
+        globals.visited_urls = set(links)
+
+    # Declare variables
+    wsbapp_url = "https://www.reddit.com/user/wsbapp.json"
+    scraped_data = defaultdict(list)
     raw_data = make_request(wsbapp_url)
     urls = []
 
@@ -44,16 +61,45 @@ def get_wsb_thread(wsbapp_url):
             if comment_score < 1:
                 continue
 
-            res[post_title].append(comment_body)
+            scraped_data[post_title].append(comment_body)
+        
+
+    # Returns a dict {post_title : [comments]}
+    # Parse comments, send to LLM to gather tickers
+
+    for title, comments in scraped_data.items():
+        comments_dict = defaultdict(list)
+
+        for i in range(0, len(comments), 5):
+            print(f"Parsing comments {i} through {i + 5}. . .")
+            comment_text = [comment for comment in comments[i: i + 5]]
+            llm.parse_tickers(comment_text, comments_dict)
+
+        # Sanitize thread title
+        # Place within docs directory
+        cleaned_title = title.replace('/', '-').replace('\\', '-') + ".json"
+        cleaned_title = globals.docs_dir / cleaned_title
+
+        with open(cleaned_title, "w") as file:
+            json.dump(comments_dict, file, indent=4)
+        
+        print(f"Finished parsing {cleaned_title}")
+    
+    with open("visited_links.txt", "w") as file:
+        for url in globals.visited_urls:
+            file.write(url + "\n")
+
+
+
 
     
-    return res
+def get_daily_dds():
+    # TODO: WIP, DECIDE HOW TO USE THE DATA
+    """
+    Gathers any dds posted in the daily dds section
 
-
-
-
-    
-def get_daily_dds(headers):
-
+    """
+    # print('Gathering Daily DDs')
+    # get_daily_dds(headers)
     return
     url =  "https://www.reddit.com/r/wallstreetbets/search.json?sort=top&q=flair%3ADD&restrict_sr=on&t=day"
