@@ -1,4 +1,4 @@
-name: wsb-agent
+name: trading-agent
 channels:
   - conda-forge
 dependencies:
@@ -9,3 +9,6 @@ dependencies:
       - langchain-ollama==1.0.0
       - langchain-openai==1.0.0
       - openai==2.8.1
+      - yfinance==0.2.66
+      - pandas==2.3.3
+      - numpy==2.3.5
