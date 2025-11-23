@@ -2,6 +2,7 @@
 import yfinance as yf
 import pandas as pd
 from datetime import date, timedelta
+import sys
 
 # # checks to see if ticker exists
 # def ticker_exists():

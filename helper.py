@@ -1,15 +1,20 @@
 import time
 import requests
+import yfinance as yf
+
+
+import globals
 
 def make_request(url:str, thread:bool = False):
 
-    print(f"Sending GET request to {url} . . .")
     """
     Function used to send requests
     Parameters:
         url: string, the url to send a GET request to
         thread: if gathering data from a post (post content) or from a thread (comments)
     """
+
+    print(f"Sending GET request to {url} . . .")
 
     # NOTE: Must send a User-Agent header that looks like a real browser
     headers = {
@@ -30,8 +35,6 @@ def make_request(url:str, thread:bool = False):
 
                 return data
 
-            elif response.status_code == 429:
-                print("Error: Too many requests. Reddit is rate-limiting you.")
             else:
                 print(f"Error: Failed to fetch data. Status Code: {response.status_code}")
 
