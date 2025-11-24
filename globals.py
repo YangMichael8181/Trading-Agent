@@ -1,5 +1,6 @@
 import threading
 from pathlib import Path
+import queue
 
 CURRENT_DIRECTORY = Path(__file__).parent
 

@@ -1,8 +1,8 @@
 import json
 from collections import defaultdict
+import threading
 
 from helper import make_request
-from classes import Comment
 import globals
 import llm
 
@@ -18,16 +18,17 @@ def get_wsb_thread():
 
     print('Starting Stickied Thread Scrape . . . ')
     
-    # grab visited threads to prevent re-visiting same threads
-    with open("visited_links.txt", "r") as file:
-        links = file.read().split("\n")
-        globals.visited_urls = set(links)
-
     # Declare variables
     wsbapp_url = "https://www.reddit.com/user/wsbapp.json"
     scraped_data = defaultdict(list)
     raw_data = make_request(wsbapp_url)
     urls = []
+
+    # grab visited threads to prevent re-visiting same threads
+    # Search unvisited threads
+    with open("visited_links.txt", "r") as file:
+        links = file.read().split("\n")
+        globals.visited_urls = set(links)
 
     post_data = raw_data['data']['children']
     for i in range (1, 21):
@@ -37,12 +38,18 @@ def get_wsb_thread():
         urls.append(url)
         globals.visited_urls.add(url)
 
+    # Gather comments from unvisited threads
     for url in urls:
         raw_data = make_request(url, thread=True)
         post_title = raw_data[0]['data']['children'][0]['data']['title']
         raw_comments = raw_data[1]['data']['children']
         
         for comment in raw_comments:
+            # TODO: MIGHT BE BROKEN
+            # TRIES TO GRAB REPLIES IF EXISTS, THEN APPENDS
+            if comment.get('replies', "") != "":
+                raw_comments.append(comments['replies']['data']['children'])
+
             # There are "comments" of kind "more" that is used for pagination
             # Ignore them, only focus on actual comments
             if comment['kind'] != "t1":
@@ -53,6 +60,10 @@ def get_wsb_thread():
             # Not a statistically significant number of comments with pictures, therefore ignored
             comment_body = comment['data']['body']
             if ".jpg" in comment_body or ".jpeg" in comment_body or ".png" in comment_body:
+                continue
+            
+            # Ignore short comments, no worth
+            if len(comment_body) < 10:
                 continue
 
             # Ignore comments with less than 1 karma

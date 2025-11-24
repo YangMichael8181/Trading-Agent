@@ -12,30 +12,32 @@ import yfinance as yf
 import requests
 import tools
 
+
+
+
+
+import io
+from contextlib import redirect_stderr, redirect_stdout
+
 from classes import NASDAQ
 
 def main():
 
-    # helper.gather_nasdaq_listings()
 
+    # test = yf.Tickers("AACB AACBR AACBU AACG AADR AAL AALG AAME AAOI AAON").history(period="3mo",interval="1d")
+    # print(test)
+
+    # return
+
+    print("Initializing NASDAQ() Object . . .")
     globals.GLOBAL_NASDAQ = NASDAQ()
 
     return
+
     # grabs threads from /u/wsbapp
     # Grabs top 20 threads, ignores latest thread
     # Do this via checking the history of wsbapp
     scraper.get_wsb_thread()
-
-    nasdaq_thread = threading.Thread(target=helper.gather_nasdaq_listings)
-    wsb_thread = threading.Thread(scraper.get_wsb_thread)
-    threads = [nasdaq_thread, wsb_thread]
-
-    for t in threads:
-        t.start()
-    
-    for t in threads():
-        t.join()
-
 
 
 
