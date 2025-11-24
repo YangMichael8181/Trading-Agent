@@ -13,9 +13,6 @@ import requests
 import tools
 
 
-import parse
-
-
 import io
 from contextlib import redirect_stderr, redirect_stdout
 

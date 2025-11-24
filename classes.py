@@ -59,15 +59,13 @@ class NASDAQ:
         tickers_gathered = set()
 
         self._gather_nasdaq_tickers(tickers_gathered)
-        self.tickers.join()
-
         self._gather_nyse_tickers(tickers_gathered)
         self.tickers.join()
         del tickers_gathered
         self.tickers.put(None)
         
         # Cache results
-        with open("nasdaq_above_50sma.json", "w") as file:
+        with open("nasdaq_above_50sma.txt", "w") as file:
             for key in self.ticker_data.keys():
                 file.write(f"{key}\n")
 
@@ -124,9 +122,9 @@ class NASDAQ:
             self: required to store tickers retrieved into tickers queue
             tickers_gathered: set. Since cannot iterate through queue, use set to keep track of tickers already obtained
         """
-        print("Gathering NYSE-listed tickers . . . ")
         # Send HTTP request to gather required file
         # Use while loop to re-send request if failed
+        print("Gathering NYSE-listed tickers . . . ")
         response = None
         while response is None:
             response = requests.get("https://www.nasdaqtrader.com/dynamic/symdir/otherlisted.txt")
