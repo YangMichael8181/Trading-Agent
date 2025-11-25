@@ -1,33 +1,17 @@
-import json
-import threading
-from collections import defaultdict
-
 # local imports
 import scraper
 import globals
-import llm
-import helper
 import yfinance as yf
 
-import requests
-import tools
 
-
-import io
-from contextlib import redirect_stderr, redirect_stdout
 
 from classes import NASDAQ
 
 def main():
 
-
-    # test = yf.Tickers("AACB AACBR AACBU AACG AADR AAL AALG AAME AAOI AAON").history(period="3mo",interval="1d")
-    # print(test)
-
-    # return
-
-    print("Initializing NASDAQ() Object . . .")
-    globals.GLOBAL_NASDAQ = NASDAQ()
+    print("Initializing global variables . . .")
+    globals.initialize_global_variables()
+    print(len(globals.NASDAQ.ticker_data))
 
     return
 

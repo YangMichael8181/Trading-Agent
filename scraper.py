@@ -24,11 +24,6 @@ def get_wsb_thread():
     raw_data = make_request(wsbapp_url)
     urls = []
 
-    # grab visited threads to prevent re-visiting same threads
-    # Search unvisited threads
-    with open("visited_links.txt", "r") as file:
-        links = file.read().split("\n")
-        globals.visited_urls = set(links)
 
     post_data = raw_data['data']['children']
     for i in range (1, 21):

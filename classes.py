@@ -4,9 +4,9 @@ import threading
 import time
 import numpy as np
 import queue
-
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stderr
 import io
+import parse
 
 class NASDAQ:
 
@@ -47,16 +47,13 @@ class NASDAQ:
         threading.Thread(target=self._producer_func).start()
         for _ in range(1, num_threads):
             threading.Thread(target=self._consumer_func).start()
-        
-
-        # with open("ticker_filter.txt", r) as file:
-        #   put all filtered tickers into tickers_gathered so we don't deal with 100+ faulty tickers
 
         # Collect all tickers from datasets found online
         # First process NASDAQ, then process NYSE
         # Delete ticker set afterwards, was used to prevent duplicates from dataset
         # After everything processed, let producer and consumers know job is finished by putting None into the queue
         tickers_gathered = set()
+        tickers_gathered.update(parse.gather_invalid_tickers())
 
         self._gather_nasdaq_tickers(tickers_gathered)
         self._gather_nyse_tickers(tickers_gathered)
@@ -114,6 +111,7 @@ class NASDAQ:
         
         tickers_gathered.update(tickers_list)
 
+
     def _gather_nyse_tickers(self, tickers_gathered:set):
         """
         Sends HTTP request to gather all tickers listed on the NYSE
@@ -140,19 +138,19 @@ class NASDAQ:
         # line[0]: ticker
         # line[2]: exchange (Z and V are NOT NYSE, therefore IGNORE; P is NYSE ARCA, which does not hold many stocks)
         # line[5]: test issue (test issue == fake stock, therefore DO NOT WANT)
-        # line[7]: nasdaq_ticker (Ignore any tickers with non-letter characters (e.g. BRK.A, ))
+        # line[7]: nasdaq_ticker (Ignore any tickers with non-letter characters (any warrant stocks, dividend stock, etc.))
         # line[7]: nasdaq_ticker (Already grabbed all nasdaq tickers, don't want duplicates)
         data = [list(line.split('|')) for line in data.split('\n')]
         tickers_list = [
             line[0]
             for line
             in data[1:-2]
-            if (line[2] != 'P' and line[2] != 'Z' and line[2] != 'V')
+            if (line[0].isalpha())
+            and (line[2] != 'P' and line[2] != 'Z' and line[2] != 'V')
             and (line[5] != 'Y')
-            and (line[7].isalpha() == True)
             and (line[7] not in tickers_gathered)
             ]
-            
+        
         split_tickers_list = [tickers_list[i:i + 100] for i in range(0, len(tickers_list), 100)]
         for t in split_tickers_list:
             self.tickers.put(" ".join(t))
@@ -168,15 +166,22 @@ class NASDAQ:
             ticker: string. Should be a string with 100 tickers in the string, split by whitespace
         """
 
+        # Send API request to API to gather data
+        # Capture stderr output, save to file (since delisted tickers do not raise an exception)
         print(f"grabbing price history for {ticker}. . .")
-        stdout_output = io.StringIO
-        stderr_output = io.StringIO
+        stderr_output = io.StringIO()
         try:
-            data = yf.Tickers(ticker).history(period="3mo",interval="1d")
-
+            with self.output_lock:
+                    with redirect_stderr(stderr_output):
+                        # data = yf.Tickers(ticker).history(period="3mo",interval="1d")
+                        data = yf.Tickers("CTEST").history(period="3mo",interval="1d")
         except Exception as e:
             print(f"\nEXCEPTION OCCURED: {e}")
 
+
+        with open("test.txt", "a") as file:
+            file.write(stderr_output.getvalue())
+        return
         split_tickers = ticker.split(" ")
         for ticker in split_tickers:
             key = ('Close', ticker)
@@ -216,11 +221,12 @@ class NASDAQ:
         
         # If faulty data, ignore
         # Only save tickers that are above 50 day simple moving average
+        # Save price frame to calculate other filters required
         if np.isnan(sma_50) or np.isnan(latest_close):
             return
         if latest_close > sma_50:
             with self.ticker_dict_lock:
-                self.ticker_data[ticker] = yf.Ticker(ticker)
+                self.ticker_data[ticker] = price_frame
 
 
 #--------------------PRODUCER-CONSUMER-FUNCTIONS-------------------------------------------------------------------
