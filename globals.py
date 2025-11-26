@@ -32,6 +32,12 @@ CONFIG_DIR = CURRENT_DIRECTORY / "config"
 
 # Threads already seen and scraped
 VISITED_URLS = set()
+
+# file where invalid tickers are stored
 ERROR_MESSAGE_FILE = "stderr_output.txt"
 
+# filtered stock information
 NASDAQ = None
+
+ONE_BILLION = 1000000000
+ONE_HUNDRED_MILLION = 100000000

@@ -90,9 +90,6 @@ class NASDAQ:
         with open("nasdaq_above_50sma.txt", "w+") as file:
             for key in self.ticker_data.keys():
                 file.write(f"{key}\n")
-        
-        with open("verify_mas.json", "w+") as file:
-            json.dump(self.cached_mas, file, indent=4)
 
 
 #---------------------------------------------GATHER-TICKERS-------------------------------------------------------------------------
@@ -368,23 +365,13 @@ class NASDAQ:
         """
 
         # Check if stock has enough data to calculate for provided range
-        if len(frame) + 1 < time_range:
+        if len(frame) * 2 < time_range:
                 return -1.0
-        
-        try:
-            latest_close = round(frame.tail(1).item(), 2)
-        except Exception as e:
-            latest_close = round(frame.tail(1).mean(), 2)
-            
-        frame = frame[ :time_range + 1]
-        frame = frame[ :-1]
-        
-        factor = smoothing / (1 + time_range)
-        sma = self._calculate_sma(frame, time_range)
 
-        today_ema = factor * latest_close
-        yesterday_ema = sma * (1 - factor)
-        return round((today_ema + yesterday_ema), 2)
+        com_val = (time_range - 1) / 2
+        ewm_series = frame.ewm(com=com_val, adjust=False).mean()
+        ema_val = ewm_series.iloc[-1]
+        return round(ema_val, 2)
 
 
     def _calculate_sma(self, frame, time_range:int = 50) -> float:

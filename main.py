@@ -6,6 +6,7 @@ import scraper
 import globals
 from classes import NASDAQ
 
+import yfinance as yf
 
 def main():
 
