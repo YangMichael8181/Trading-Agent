@@ -1,11 +1,13 @@
 import re
+import globals
 
 def gather_invalid_tickers() -> list:
     # Opens file
     # Grabs file contents, then clears file content
 
     invalid_tickers = []
-    with open("stderr_output.txt", "r+") as file:
+
+    with open(globals.ERROR_MESSAGE_FILE, "a+") as file:
         data = file.read()
         file.seek(0)
         file.truncate()

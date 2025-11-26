@@ -1,17 +1,24 @@
+import sys
+import yfinance as yf
+
 # local imports
 import scraper
 import globals
-import yfinance as yf
-
-
-
 from classes import NASDAQ
+
 
 def main():
 
+    config_file_name = "test.json"
+    if len(sys.argv) > 1:
+        config_file_name = sys.argv[1]
+        print("Detected command line argument . . .")
+        print(f"Loading in {config_file_name} . . .")
+
+    print(f"Using config file {config_file_name} . . .")
+
     print("Initializing global variables . . .")
-    globals.initialize_global_variables()
-    print(len(globals.NASDAQ.ticker_data))
+    globals.initialize_global_variables(config_file_name=config_file_name)
 
     return
 
