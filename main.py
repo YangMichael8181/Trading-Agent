@@ -8,7 +8,21 @@ from classes import NASDAQ
 
 import yfinance as yf
 
+from repo import Repository
+from api import API
+
 def main():
+
+
+    api = API()
+    return
+
+
+    # data = yf.download(tickers="NVDA", period="5y",interval="1d", auto_adjust=True)
+    # repo = Repository()
+    # repo.write(ticker="NVDA", data=data)
+    # return
+
 
     config_file_name = "test.json"
     if len(sys.argv) > 1:

@@ -1,5 +1,6 @@
 from pathlib import Path
-import classes
+from filterer import NASDAQ
+from api import API
 import json
 
 def initialize_global_variables(config_file_name:str = "default.json"):
@@ -13,8 +14,13 @@ def initialize_global_variables(config_file_name:str = "default.json"):
     except Exception as e:
         print(f"EXCEPTION OCCURED: {e}")
 
-    global NASDAQ
-    NASDAQ = classes.NASDAQ(json_file=json_file)
+    global STOCK_FILTERED
+    STOCK_FILTERED = NASDAQ(json_file=json_file)
+
+
+    global STOCK_API
+    STOCK_API = API()
+    
     
     # grab visited threads to prevent re-visiting same threads
     # global VISITED_URLS
@@ -37,7 +43,8 @@ VISITED_URLS = set()
 ERROR_MESSAGE_FILE = "stderr_output.txt"
 
 # filtered stock information
-NASDAQ = None
+STOCK_FILTERED = None
+STOCK_API = None
 
 ONE_BILLION = 1000000000
 ONE_HUNDRED_MILLION = 100000000
